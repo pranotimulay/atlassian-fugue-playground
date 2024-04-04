@@ -1,4 +1,4 @@
-package org.example;
+package tester;
 
 /**
  * The FugueFundamentalsTester class is responsible for testing various functionalities provided by the Atlassian Fugue
@@ -18,7 +18,9 @@ import org.junit.jupiter.api.Test;
 import io.atlassian.fugue.Either;
 import io.atlassian.fugue.Option;
 
-public class FugueFundamentalsTester {
+public class FugueFundamentalTester {
+
+    MyService service = new MyService();
 
     @Test
     public void testOptionOperation() {
@@ -39,4 +41,35 @@ public class FugueFundamentalsTester {
         assertTrue(either.isRight());
     }
 
+    @Test
+    public void testSomeOperation() {
+        Either<String, Integer> insertResult = service.operation("INSERT");
+        Either<String, Integer> updateResult = service.operation("UPDATE");
+
+        insertResult.fold(left -> {
+            System.out.println("left leg called!");
+            assertEquals("Error occurred!", insertResult.left().get());
+            return insertResult;
+        }, right -> {
+            System.out.println("right leg called!");
+            assertEquals(200, updateResult.right().get());
+            return updateResult;
+        });
+
+    }
+
+}
+
+class MyService {
+
+    public Either<String, Integer> operation(String type) {
+        switch (type) {
+        case "INSERT":
+            return Either.left("Error occurred!");
+        case "UPDATE":
+            return Either.right(200);
+        default:
+            return Either.left("Invalid operation");
+        }
+    }
 }
