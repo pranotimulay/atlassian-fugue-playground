@@ -9,10 +9,13 @@ package tester;
  * @since 2024-03-26
  */
 
+import static io.atlassian.fugue.Option.none;
+import static io.atlassian.fugue.Option.some;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import org.junit.Assert;
 import org.junit.jupiter.api.Test;
 
 import io.atlassian.fugue.Either;
@@ -23,26 +26,26 @@ public class FugueFundamentalTester {
     MyService service = new MyService();
 
     @Test
-    public void testOptionOperation() {
+    void testOptionOperation() {
         Option<String> undefOption = Option.none();
         assertFalse(undefOption.isDefined());
     }
 
     @Test
-    public void testMapOperation() {
+    void testMapOperation() {
         Option<String> some = Option.some("value").map(String::toUpperCase);
         assertEquals("VALUE", some.get());
     }
 
     @Test
-    public void testEitherOperation() {
+    void testEitherOperation() {
         Either<Integer, String> either = Either.right(
                 "right"); // We call right() if we want an Either containing the Right value
         assertTrue(either.isRight());
     }
 
     @Test
-    public void testSomeOperation() {
+    void testSomeOperation() {
         Either<String, Integer> insertResult = service.operation("INSERT");
         Either<String, Integer> updateResult = service.operation("UPDATE");
 
@@ -56,6 +59,47 @@ public class FugueFundamentalTester {
             return updateResult;
         });
 
+    }
+
+    @Test
+    public void testEitherLeft() {
+        Either<String, Integer> result = Either.left("Error");
+        Assert.assertTrue(result.isLeft());
+        Assert.assertEquals("Error", result.left().get());
+    }
+
+    @Test
+    public void testEitherRight() {
+        Either<String, Integer> result = Either.right(5);
+        Assert.assertTrue(result.isRight());
+        Assert.assertEquals(Integer.valueOf(5), result.right().get());
+    }
+
+    @Test
+    public void testEitherMap() {
+        Either<String, Integer> success = Either.right(5);
+        Either<String, Integer> doubled = success.map(n -> n * 2);
+        Assert.assertEquals(Integer.valueOf(10), doubled.right().get());
+    }
+
+    @Test
+    public void testOptionSome() {
+        Option<Integer> maybeNumber = some(5);
+        Assert.assertTrue(maybeNumber.isDefined());
+        Assert.assertEquals(Integer.valueOf(5), maybeNumber.get());
+    }
+
+    @Test
+    public void testOptionNone() {
+        Option<Integer> maybeNumber = none();
+        Assert.assertFalse(maybeNumber.isDefined());
+    }
+
+    @Test
+    public void testOptionMap() {
+        Option<Integer> maybeNumber = some(5);
+        Option<Integer> doubled = maybeNumber.map(n -> n * 2);
+        Assert.assertEquals(Integer.valueOf(10), doubled.get());
     }
 
 }
